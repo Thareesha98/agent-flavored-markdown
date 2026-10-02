@@ -214,7 +214,7 @@ This section specifies the AI model or language model that powers the agent. It 
 | `name` | `string` | No | Model identifier or name. |
 | `provider` | `string` | No | The organization or service providing the model (e.g., "openai", "anthropic"). |
 | `url` | `string` | No | The URL endpoint for the model service. |
-| `authentication` | `object` | No | Authentication configuration for accessing the model. See [Section 5.6](#56-authentication) for the schema. |
+| `authentication` | `object` | No | Authentication configuration for accessing the model. Only the `bearer` and `api-key` types are supported here (and `header_name` is not applicable; the provider decides which header carries the key); any other type MUST be rejected. See [Section 5.6](#56-authentication) for the schema. |
 
 #### 5.2.2. Schema Overview
 
@@ -803,35 +803,33 @@ The authentication object is **OPTIONAL**.
 #### 5.6.1. Schema Overview
 ```yaml
 authentication:
-  type: string                 # Scheme (bearer, basic, api-key, jwt, oauth2)
-  # For type: "bearer"
-  token: string                # The security token (usually environment variable)
-  # For type: "basic"
-  username: string             # The HTTP Basic username
-  password: string             # The HTTP Basic password
-  # For type: "api-key"
-  api_key: string              # The API key value
-  header_name: string          # Optional: The HTTP header name (defaults to "Authorization")
-  # For type: "jwt" (runtime-signed; for a pre-signed token use type: "bearer")
-  issuer: string               # The "iss" claim
-  audience: string             # The "aud" claim (string or list of strings)
-  signing_key: string          # PEM private key or symmetric secret used to sign the token
-  algorithm: string            # Optional: Signing algorithm (defaults to "RS256")
-  key_id: string               # Optional: The "kid" header
-  subject: string              # Optional: The "sub" claim
-  custom_claims: object        # Optional: Additional claims to embed in the token
-  expiry_seconds: integer      # Optional: Token validity period (defaults to 300)
-  # For type: "oauth2"
-  grant_type: string           # Flow: client_credentials, password, refresh_token, jwt_bearer
-  token_url: string            # Token endpoint (client_credentials, password, jwt_bearer)
-  refresh_url: string          # Refresh endpoint (refresh_token)
-  client_id: string            # Client identifier
-  client_secret: string        # Client secret
-  username: string             # Resource owner username (password grant)
-  password: string             # Resource owner password (password grant)
-  refresh_token: string        # The refresh token (refresh_token grant)
-  assertion: string            # The JWT assertion (jwt_bearer grant)
-  scopes: list[string]         # Optional: List of OAuth2 scopes to request
+  type: string                 # bearer | basic | api-key | jwt | oauth2 (or an "x-" extension type)
+  # type: "bearer"
+  token: string
+  # type: "basic"
+  username: string
+  password: string
+  # type: "api-key"
+  api_key: string
+  header_name: string          # Optional. Defaults to "Authorization"
+  # type: "jwt"  (runtime-signed)
+  issuer: string
+  audience: string | list[string]
+  signing_key: string          # HMAC secret, or a path to a PEM private key file
+  algorithm: string            # Optional. RS256 (default) | RS384 | RS512 | HS256 | HS384 | HS512
+  key_id: string               # Optional. "kid" header
+  subject: string              # Optional. "sub" claim
+  custom_claims: object        # Optional. Must not use iss, aud, sub, iat, exp, nbf, jti
+  expiry_seconds: integer      # Optional. Defaults to 300
+  # type: "oauth2"
+  grant_type: client_credentials
+  token_url: string
+  client_id: string
+  client_secret: string
+  scopes: list[string]         # Optional
+  token_endpoint_auth_method: string  # Optional. client_secret_basic (default) | client_secret_post
+  resource: string             # Optional. RFC 8707 resource indicator (single value)
+  extra_params: object         # Optional. Extra token-request parameters (string values)
 ```
 
 #### 5.6.2. Field Definitions
@@ -840,7 +838,16 @@ authentication:
 
 | Key | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `type` | `string` | **Yes** | Authentication scheme. Case-insensitive. MUST be one of `bearer`, `basic`, `api-key`, `jwt`, or `oauth2`; any other value is invalid and MUST be rejected. Determines which additional type-specific fields are required or supported. |  
+| `type` | `string` | **Yes** | Authentication scheme. Case-insensitive. MUST be one of `bearer`, `basic`, `api-key`, `jwt`, or `oauth2`, or an extension type starting with `x-`. Any other value MUST be rejected. Determines which additional type-specific fields are required or supported. |
+
+##### Validation Rules
+
+- The authentication object is **closed**: a field that is not defined for the selected `type` MUST be rejected, as MUST a field whose value is `null`.
+- A **required** field MUST be present, not `null`, and not an empty string.
+- Integer fields (`expiry_seconds`) MAY be written as an integer or as a string of digits (for example, from [variable substitution](#7-variable-substitution)).
+- Structural checks (known type, required fields present, no unknown fields) are always applied. Value checks (URL format, algorithm names, key length, integer range) MAY be skipped for a string that contains an unresolved `${...}` reference, and MUST be applied once the value is resolved.
+- A runtime that does not implement an `x-` extension type MUST report that the type is unsupported; it MUST NOT silently ignore the configuration.
+- Credential values (tokens, passwords, secrets, keys) **SHOULD NOT** be hardcoded in AFM files. Use [variable substitution](#7-variable-substitution) to reference them from the host environment.
 
 ##### Type-Specific Variant Fields:
 
@@ -848,103 +855,57 @@ authentication:
 
 | Key | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `token` | `string` | **Yes** | The active token string. Values **SHOULD** use [variable substitution](#7-variable-substitution) to reference credentials securely. |  
-
+| `token` | `string` | **Yes** | The active token string. Sent as `Authorization: Bearer <token>`. It MUST NOT contain control characters. |
 
 **Basic Authentication Variant (`type: "basic"`)**
 
 | Key | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `username` | `string` | **Yes** | The user ID string required for access. |
-| `password` | `string` | **Yes** | The plain text secret paired with the username. | 
-
+| `username` | `string` | **Yes** | The user ID. It MUST NOT contain a colon (RFC 7617). |
+| `password` | `string` | **Yes** | The secret paired with the username. |
 
 **API Key Variant (`type: "api-key"`)**
 
 | Key | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `api_key` | `string` | **Yes** | The platform-specific authentication string. |
-|`header_name` |	`string` |	**No** |	The HTTP header name containing the API key. Defaults to "Authorization". |
+| `api_key` | `string` | **Yes** | The API key. It MUST NOT contain control characters. |
+| `header_name` | `string` | **No** | The HTTP header that carries the key. It MUST be a valid HTTP header field name (RFC 9110 §5.1). Defaults to `Authorization`, in which case the key is sent as the complete header value. |
 
+A runtime MAY not support custom headers on every transport. Where a runtime cannot send the key on a given transport, it MUST report an error rather than ignore the configuration.
 
 **JSON Web Token (JWT) Variant (`type: "jwt"`)**
 
-The `jwt` type denotes a token that the runtime signs dynamically from a key and claims. To supply an already-signed token, use the `bearer` type instead.
+The `jwt` type denotes a token that the runtime signs from a key and claims, and sends as `Authorization: Bearer <token>`. To supply an already-signed token, use the `bearer` type.
 
 | Key | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `issuer` | `string` | **Yes** | The `iss` claim identifying the token issuer. |
-| `audience` | `string` or `string[]` | **Yes** | The `aud` claim identifying the intended recipient(s). |
-| `signing_key` | `string` | **Yes** | The private key (PEM format) or HMAC secret used to sign the token at runtime. |
-| `algorithm` | `string` | **No** | The cryptographic algorithm used for signing (e.g., "RS256", "HS256", "ES256"). Defaults to "RS256". |
-| `key_id` | `string` | **No** | The `kid` header identifying the signing key. |
-| `subject` | `string` | **No** | The `sub` claim identifying the token subject. |
-| `custom_claims` | `object` | **No** | Additional key-value claims to embed in the token. The runtime generates `iat` and `exp` claims dynamically. |
-| `expiry_seconds` | `integer` | **No** | The token validity duration in seconds. Defaults to 300. |  
+| `issuer` | `string` | **Yes** | The `iss` claim. |
+| `audience` | `string` or `string[]` | **Yes** | The `aud` claim. |
+| `signing_key` | `string` | **Yes** | For `HS*` algorithms, the HMAC secret. For `RS*` algorithms, the path to a PEM private key file (relative paths resolve against the directory of the AFM file). Inline PEM content is not supported. |
+| `algorithm` | `string` | **No** | One of `RS256`, `RS384`, `RS512`, `HS256`, `HS384`, `HS512`. Defaults to `RS256`. The `none` algorithm MUST be rejected. |
+| `key_id` | `string` | **No** | The `kid` header. |
+| `subject` | `string` | **No** | The `sub` claim. |
+| `custom_claims` | `object` | **No** | Additional claims. It MUST NOT contain `iss`, `aud`, `sub`, `iat`, `exp`, `nbf`, or `jti`. |
+| `expiry_seconds` | `integer` | **No** | Token validity in seconds, greater than zero. Defaults to `300`. |
 
+An HMAC secret MUST be at least as long as the hash output (32, 48 or 64 bytes for `HS256`, `HS384`, `HS512`; RFC 7518 §3.2). The runtime generates `iat` and `exp`.
 
 **OAuth 2.0 Variant (`type: "oauth2"`)**
 
-The `grant_type` field selects the OAuth 2.0 flow and determines which additional fields are required.
+The runtime obtains an access token from the token endpoint and sends it as `Authorization: Bearer <access_token>`. It caches the token and requests a new one before it expires.
 
 | Key | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `grant_type` | `string` | **Yes** | The OAuth 2.0 flow: `client_credentials`, `password`, `refresh_token`, or `jwt_bearer`. |
-| `scopes` | `string[]` | **No** | List of scopes to request. Applies to all grant types. |
-
-_Grant-specific fields:_
-
-`grant_type: "client_credentials"`
-
-| Key | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `token_url` | `string` | **Yes** | The token endpoint where credentials are exchanged for an access token. |
+| `grant_type` | `string` | **Yes** | MUST be `client_credentials` (case-insensitive). |
+| `token_url` | `string` | **Yes** | The token endpoint. It MUST be an absolute `https` URL (`http` is allowed only for a loopback host: `localhost`, `127.0.0.1` or `::1`). |
 | `client_id` | `string` | **Yes** | The client ID. |
 | `client_secret` | `string` | **Yes** | The client secret. |
+| `scopes` | `string[]` | **No** | Scopes to request. Each scope MUST be a valid scope token (RFC 6749 §3.3). |
+| `token_endpoint_auth_method` | `string` | **No** | How the client authenticates to the token endpoint: `client_secret_basic` (default, HTTP Basic with form-urlencoded credentials) or `client_secret_post` (credentials in the request body). |
+| `resource` | `string` | **No** | A resource indicator sent as the `resource` parameter (RFC 8707). A single value. |
+| `extra_params` | `object` | **No** | Additional string parameters added to the token request. It MUST NOT contain `grant_type`, `scope`, `client_id`, `client_secret`, `resource`, `assertion`, `username`, `password`, `refresh_token`, `client_assertion`, or `client_assertion_type`. |
 
-`grant_type: "password"`
-
-| Key | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `token_url` | `string` | **Yes** | The token endpoint. |
-| `username` | `string` | **Yes** | The resource owner username. |
-| `password` | `string` | **Yes** | The resource owner password. |
-| `client_id` | `string` | **Yes** | The client ID. |
-| `client_secret` | `string` | **Yes** | The client secret. |
-
-`grant_type: "refresh_token"`
-
-| Key | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `refresh_url` | `string` | **Yes** | The endpoint used to redeem the refresh token. |
-| `refresh_token` | `string` | **Yes** | The refresh token. |
-| `client_id` | `string` | **Yes** | The client ID. |
-| `client_secret` | `string` | **Yes** | The client secret. |
-
-`grant_type: "jwt_bearer"`
-
-| Key | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `token_url` | `string` | **Yes** | The token endpoint. |
-| `assertion` | `string` | **Yes** | The JWT assertion presented for the token exchange. |
-| `client_id` | `string` | **No** | The client ID. |
-| `client_secret` | `string` | **No** | The client secret. |
-
-
-<!-- !!! note "Authentication Field Structure"
-    The authentication object uses a type-specific structure where the `type` field determines which additional fields are needed:
-    
-    - **bearer**: Requires `token` field
-    - **basic**: Requires `username` and `password` fields
-    - **oauth2**: May require a `grant_type` field and fields like `client_id`, `client_secret`, `token_url`, `scope`, etc.
-    
-    The exact set of fields and their semantics are implementation-specific, but implementations **SHOULD** follow common authentication patterns for each type. -->
-
-<!-- !!! warning "Security Best Practices"
-    Sensitive credentials (e.g., tokens, passwords, secrets, keys) **SHOULD NOT** be hardcoded in AFM files. Instead:
-    
-    - Use [variable substitution](#7-variable-substitution) to reference credentials from secure sources
-    - Let the agent's host environment manage actual credential storage and retrieval -->
+The `password`, `refresh_token`, and `authorization_code` grants are not supported. The `password` grant MUST NOT be used (RFC 9700 §2.4).
 
 #### 5.6.3. Example Usage
 
@@ -966,16 +927,24 @@ authentication:
   api_key: "${env:OPENAI_API_KEY}"
   header_name: "X-API-Key"
 
-# JWT runtime-signed authentication
+# JWT runtime-signed authentication (HMAC)
 authentication:
   type: "jwt"
   issuer: "my-issuer"
   audience: "llm-api"
-  signing_key: "${env:MY_PRIVATE_KEY_PEM}"
-  algorithm: "RS256"
+  signing_key: "${env:MY_HMAC_SECRET}"
+  algorithm: "HS256"
   expiry_seconds: 300
 
-# OAuth2 Client Credentials authentication
+# JWT runtime-signed authentication (RSA key file)
+authentication:
+  type: "jwt"
+  issuer: "my-issuer"
+  audience: "llm-api"
+  signing_key: "./keys/private.pem"
+  key_id: "key-1"
+
+# OAuth2 client credentials
 authentication:
   type: "oauth2"
   grant_type: client_credentials
@@ -984,6 +953,15 @@ authentication:
   client_secret: "${env:OAUTH_CLIENT_SECRET}"
   scopes: ["llm:predict"]
 
+# OAuth2 client credentials, secret in the body, with a resource indicator
+authentication:
+  type: "oauth2"
+  grant_type: client_credentials
+  token_url: "https://identity.enterprise.com/oauth/v2/token"
+  client_id: "${env:OAUTH_CLIENT_ID}"
+  client_secret: "${env:OAUTH_CLIENT_SECRET}"
+  token_endpoint_auth_method: client_secret_post
+  resource: "https://mcp.example.com"
 ```
 
 ### 5.7. Agent Skills {#57-agent-skills}
@@ -1049,7 +1027,7 @@ mcp:
       # For HTTP transport:
       url: string           # URL for the MCP server
       authentication:       # Optional authentication configuration
-        type: string        # Authentication scheme (bearer, jwt, oauth2, etc.)
+        type: string        # Authentication scheme (bearer, basic, api-key, jwt, oauth2)
 
       # For STDIO transport:
       command: string       # Executable command to run
