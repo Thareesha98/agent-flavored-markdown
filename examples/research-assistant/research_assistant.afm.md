@@ -1,5 +1,5 @@
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Research Assistant"
 description: "A web-based research assistant that fetches web content, reasons through complex questions, and synthesizes clear answers."
 version: "0.1.0"

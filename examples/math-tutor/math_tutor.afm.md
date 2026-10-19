@@ -1,5 +1,5 @@
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Math Tutor"
 description: "An AI assistant that helps with math problems"
 version: "1.0.0"

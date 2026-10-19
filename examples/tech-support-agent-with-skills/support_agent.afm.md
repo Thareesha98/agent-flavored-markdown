@@ -1,5 +1,5 @@
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "SupportAgent"
 description: "A tech support agent that helps users troubleshoot common issues."
 version: "1.0.0"

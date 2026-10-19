@@ -11,7 +11,7 @@ A GitHub pull request analyzer agent that detects drift between code, requiremen
     <div class="demo-code-content">
 ````afm
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "GitHub PR Code-Documentation Drift Checker"
 description: >
   Analyzes GitHub pull requests and identifies drift between code and documentation

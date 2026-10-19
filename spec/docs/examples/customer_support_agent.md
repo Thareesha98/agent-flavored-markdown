@@ -11,7 +11,7 @@ A customer service agent with MCP tools and Agent Skills for refunds and order t
     <div class="demo-code-content">
 ```afm
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "CustomerSupportAgent"
 description: "A customer support agent that handles e-commerce order inquiries,
   refunds, and troubleshooting."

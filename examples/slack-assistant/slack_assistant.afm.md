@@ -1,5 +1,5 @@
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Slack Assistant"
 description: >
   A Slack-triggered assistant that replies in-thread to messages it is mentioned in.

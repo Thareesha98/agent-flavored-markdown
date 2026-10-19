@@ -5,7 +5,7 @@ hide:
   - navigation
 ---
 
-# AFM Specification v0.4.0 (draft)
+# AFM Specification v0.4.0
 
 ## 1. Introduction
 

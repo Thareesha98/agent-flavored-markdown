@@ -11,7 +11,7 @@ A self-contained agent that fetches web content, reasons through complex questio
     <div class="demo-code-content">
 ```afm
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Research Assistant"
 description: >
   A web-based research assistant that fetches web content, reasons through complex 

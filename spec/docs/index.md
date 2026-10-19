@@ -49,7 +49,7 @@ hide:
 
 ```md
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Code Review Assistant"
 description: "AI assistant for code review and improvements"
 model:
