@@ -124,6 +124,7 @@ nav:
     - Customer Support Agent: examples/customer_support_agent.md
     - HR Agent: examples/hr_agent_with_rag.md
   - Reference Implementations: reference-implementations.md
+  - Paper: paper.md
 
 # Include images in documentation
 docs_dir: docs

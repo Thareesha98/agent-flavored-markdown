@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use Agent-Flavored Markdown (AFM) in your work, please cite it using the metadata below."
+title: "Agent-Flavored Markdown (AFM)"
+abstract: >-
+  An open specification for defining AI agents in a simple, declarative,
+  Markdown-based format, keeping agent definitions portable across tools
+  and frameworks.
+authors:
+  - family-names: "Ziyad Mohamed"
+    given-names: "Maryam"
+  - family-names: "Aravinda"
+    given-names: "Hasitha"
+  - family-names: "Khalaf"
+    given-names: "Rania"
+repository-code: "https://github.com/wso2/agent-flavored-markdown"
+url: "https://wso2.github.io/agent-flavored-markdown/"
+license: CC-BY-ND-4.0
+preferred-citation:
+  type: conference-paper
+  title: "Agent-Flavored Markdown: Natural Language Specifications for Framework-Agnostic Agent Development"
+  authors:
+    - family-names: "Ziyad Mohamed"
+      given-names: "Maryam"
+    - family-names: "Aravinda"
+      given-names: "Hasitha"
+    - family-names: "Khalaf"
+      given-names: "Rania"
+  collection-title: "Joint Proceedings of the ACM IUI 2026 Workshops co-located with the 31st Annual ACM Conference on Intelligent User Interfaces (IUI 2026)"
+  collection-type: proceedings
+  conference:
+    name: "AgentCraft 2026: Workshop on Agentic AI Systems Development"
+    city: "Paphos"
+    country: CY
+    date-start: "2026-07-13"
+    date-end: "2026-07-16"
+  publisher:
+    name: "CEUR-WS.org"
+  volume: 4266
+  issn: "1613-0073"
+  year: 2026
+  month: 6
+  url: "https://ceur-ws.org/Vol-4266/paper03.pdf"
