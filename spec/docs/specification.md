@@ -214,7 +214,7 @@ This section specifies the AI model or language model that powers the agent. It 
 | `name` | `string` | No | Model identifier or name. |
 | `provider` | `string` | No | The organization or service providing the model (e.g., "openai", "anthropic"). |
 | `url` | `string` | No | The URL endpoint for the model service. |
-| `provider_options` | `object` | No | A map of provider-specific settings for the selected `provider`. Keys and values are strings. The supported keys are defined by the provider and are not specified by this document. An implementation **MUST** reject a key that it does not support for the selected provider, rather than ignore it. |
+| `provider_options` | `object` | No | A map of provider-specific settings for the selected `provider`. This field **MUST NOT** be supplied unless `provider` is also supplied. Keys and values are strings. The supported keys are defined by the provider and are not specified by this document. An implementation **MUST** reject a key that it does not support for the selected provider, rather than ignore it. |
 | `authentication` | `object` | No | Authentication configuration for accessing the model. See [Section 5.6](#56-authentication) for the schema. |
 
 #### 5.2.2. Schema Overview
