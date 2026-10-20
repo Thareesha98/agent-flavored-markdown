@@ -1,5 +1,5 @@
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Code Explainer"
 description: "A console-based agent that reads and explains code in a given project directory, tracing flows and answering questions about how things work."
 version: "0.1.0"

@@ -1,5 +1,5 @@
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "CWave HR Assistant"
 description: "An HR support agent for ConnectWave Telecommunications employees, powered by RAG over company policy documents."
 version: "0.1.0"

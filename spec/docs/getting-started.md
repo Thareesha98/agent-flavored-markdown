@@ -55,7 +55,7 @@ Next, we add the **Front Matter**. This is the YAML block at the top of the file
 
 ```yaml
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Friendly Assistant"
 description: "A friendly conversational assistant that helps users with various tasks."
 version: "0.1.0"
@@ -90,7 +90,7 @@ Putting it all together, our complete `friendly_assistant.afm.md` file looks lik
 
 ```markdown
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "Friendly Assistant"
 description: "A friendly conversational assistant that helps users with various tasks."
 version: "0.1.0"

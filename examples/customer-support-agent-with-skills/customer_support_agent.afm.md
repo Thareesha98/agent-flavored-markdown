@@ -1,5 +1,5 @@
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "CustomerSupportAgent"
 description: "A customer support agent that handles e-commerce order inquiries, refunds, and troubleshooting."
 version: "1.0.0"

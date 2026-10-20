@@ -123,7 +123,9 @@ nav:
     - Tech Support Agent: examples/tech_support_agent.md
     - Customer Support Agent: examples/customer_support_agent.md
     - HR Agent: examples/hr_agent_with_rag.md
+    - Slack Assistant: examples/slack_assistant.md
   - Reference Implementations: reference-implementations.md
+  - Paper: paper.md
 
 # Include images in documentation
 docs_dir: docs

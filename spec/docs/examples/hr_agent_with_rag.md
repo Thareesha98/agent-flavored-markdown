@@ -11,7 +11,7 @@ An HR support agent that answers employee questions using Retrieval-Augmented Ge
     <div class="demo-code-content">
 ```afm
 ---
-spec_version: "0.3.0"
+spec_version: "0.4.0"
 name: "CWave HR Assistant"
 description: >
   "An HR support agent for ConnectWave Telecommunications employees, powered by RAG over 
