@@ -67,7 +67,6 @@ If you use AFM in your research, please cite our
   publisher={CEUR-WS.org},
   issn={1613-0073},
   year={2026},
-  address={Paphos, Cyprus},
   url={https://ceur-ws.org/Vol-4266/paper03.pdf}
 }
 ```

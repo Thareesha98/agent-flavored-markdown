@@ -29,10 +29,10 @@ preferred-citation:
   collection-type: proceedings
   conference:
     name: "AgentCraft 2026: Workshop on Agentic AI Systems Development"
-    city: "Paphos"
+    city: "Limassol"
     country: CY
     date-start: "2026-07-13"
-    date-end: "2026-07-16"
+    date-end: "2026-07-13"
   publisher:
     name: "CEUR-WS.org"
   volume: 4266

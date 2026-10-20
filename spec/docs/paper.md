@@ -12,7 +12,7 @@ Maryam Ziyad Mohamed, Hasitha Aravinda, Rania Khalaf — WSO2
 Published at [AgentCraft 2026](https://dl.acm.org/doi/10.1145/3742414.3794957){ target=_blank rel=noopener },
 the Workshop on Agentic AI Systems Development, and collected in the
 [Joint Proceedings of the ACM IUI 2026 Workshops](https://ceur-ws.org/Vol-4266/){ target=_blank rel=noopener }
-(CEUR Workshop Proceedings, Vol. 4266). Paphos, Cyprus, July 2026.
+(CEUR Workshop Proceedings, Vol. 4266). Limassol, Cyprus, July 2026.
 
 [Read the paper (PDF)](https://ceur-ws.org/Vol-4266/paper03.pdf){ .md-button .md-button--primary target=_blank rel=noopener }
 
@@ -47,7 +47,6 @@ portability with reference implementations.
   publisher={CEUR-WS.org},
   issn={1613-0073},
   year={2026},
-  address={Paphos, Cyprus},
   url={https://ceur-ws.org/Vol-4266/paper03.pdf}
 }
 ```
